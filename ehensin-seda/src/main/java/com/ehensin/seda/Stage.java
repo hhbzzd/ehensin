@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ehensin.seda.exception.EventHandleRuntimeException;
 import com.ehensin.seda.spi.IEvent;
@@ -41,6 +44,7 @@ public class Stage implements IStage, IStageEventHandleStatusListener{
    
     private Map<Integer, EventHandlingStatus> handlingEventsStatus;
     private List<IStageListener> listeners;
+    private boolean isDestroyed = false;
     public Stage(final StageThreadPool threadPool, IStageContext ctx){
     	if( threadPool == null ){
     		StageUncaughtExceptionHandler handler = new StageUncaughtExceptionHandler(this);
@@ -49,7 +53,10 @@ public class Stage implements IStage, IStageEventHandleStatusListener{
     		this.threadPool = new StageThreadPool(-1, group);
     	}
     	this.ctx = ctx;
-    	queue = new StageEventQueue(this, -1);
+    	int queueSize = -1;
+    	if( this.ctx.getStageParameter() != null )
+    	    queueSize = this.ctx.getStageParameter().get("queuesize") == null ? -1 : Integer.valueOf((String)this.ctx.getStageParameter().get("queuesize"));
+    	queue = new StageEventQueue(this, queueSize);
     	
         try {
 			handler = ctx.getEventHandlerClass().newInstance();
@@ -67,6 +74,8 @@ public class Stage implements IStage, IStageEventHandleStatusListener{
     }
 	@Override
 	public void accept(IEvent event) throws UnSupportEventException{
+		if( isDestroyed )
+			return;
 		try {
 			if( supportEventCheck(event) )
 			    queue.enqueue(event);
@@ -106,16 +115,33 @@ public class Stage implements IStage, IStageEventHandleStatusListener{
 			}
 		}
 	}
+	
+	@Override
+	public void destroy() {
+		isDestroyed = true;
+		if( this.queue != null )
+			this.queue.destroy();
+		if( this.listeners != null )
+			this.listeners.clear();
+		if( this.handlingEvents != null )
+			this.handlingEvents.clear();
+		if( this.handlingEventsStatus != null )
+			this.handlingEventsStatus.clear();
+		if( this.threadPool != null )
+			this.threadPool.shutDown();
+	}
 
 	@Override
 	public void run() {
-		while( true ){
+		while( true && !isDestroyed){
 			try {
 				IEvent event = queue.dequeue();
-				threadPool.execute(new StageEventHandlerWrapper(handler, event, this));
+				if( !threadPool.isShutDown() )
+				    threadPool.execute(new StageEventHandlerWrapper(handler, event, this));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.getGlobal().log(Level.SEVERE, e.getMessage(), e);
+			} catch (RejectedExecutionException e){
+				Logger.getGlobal().log(Level.SEVERE, e.getMessage(), e);
 			}
 			
 		}
@@ -125,6 +151,7 @@ public class Stage implements IStage, IStageEventHandleStatusListener{
 	@Override
 	public void end(IEvent event) {
 		handlingEvents.remove(event.getId());
+		handlingEventsStatus.remove(event.getId());
 		for( IStageListener stage : listeners ){
 			stage.stageEnd(event);
 		}

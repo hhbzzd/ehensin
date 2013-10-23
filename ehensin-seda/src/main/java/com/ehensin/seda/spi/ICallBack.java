@@ -19,9 +19,15 @@ package com.ehensin.seda.spi;
 import com.ehensin.seda.EventHandlingStatus;
 import com.ehensin.seda.StageEvent;
 
+/**
+ * call back interface 
+ * 
+ * */
 
 public interface ICallBack {
-
+    /**
+     * 
+     * */
     public void stageChanged(StageEvent event);
 
     public void stageEnd(StageEvent event);

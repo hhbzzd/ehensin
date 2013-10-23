@@ -15,7 +15,9 @@
  */
 
 package com.ehensin.seda;
-
+/**
+ * status item , map name to value
+ * */
 public class EventHandlingStatusItem {
     private String name;
     private Object value;

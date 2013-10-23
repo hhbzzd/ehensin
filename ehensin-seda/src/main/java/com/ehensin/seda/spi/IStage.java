@@ -33,4 +33,6 @@ public interface IStage extends Runnable{
     public void accept(IEvent event)throws UnSupportEventException;
 
     public void exception(Throwable e);
+
+    public void destroy();
 }

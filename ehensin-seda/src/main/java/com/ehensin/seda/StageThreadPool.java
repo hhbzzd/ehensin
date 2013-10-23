@@ -42,4 +42,8 @@ public class StageThreadPool {
 	public void shutDown() {		
 		threadPool.shutdown();
 	}
+	
+	public boolean isShutDown(){
+		return threadPool.isShutdown() || threadPool.isTerminated();
+	}
 }

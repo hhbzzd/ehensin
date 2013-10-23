@@ -1,0 +1,36 @@
+<processes> 
+ <process name='orderprocess' engine='com.ehensin.seda.test.LotteryOrderProcedure'>
+   <context>
+       <init-param>
+           <name>gameNum</name>
+           <value>${gameNum}</value>
+       </init-param>
+       <callback></callback>
+   </context>
+   <stage name='accept' prev=''>
+       <support-event>com.ehensin.seda.test.LotteryOrderAcceptEvent</support-event>
+       <handler>com.ehensin.seda.test.LotteryOrderAcceptHandler</handler>
+       <init-param>
+            <name>queuesize</name>
+            <value>1000</value>
+       </init-param>
+   </stage>
+   <stage name='pay' prev=''>
+       <support-event>com.ehensin.seda.test.LotteryOrderPayEvent</support-event>
+       <handler>com.ehensin.seda.test.LotteryOrderPayHandler</handler>
+   </stage>
+   
+   <stage name='order' prev=''>
+       <support-event>com.ehensin.seda.test.LotteryOrderLpsEvent</support-event>
+       <handler>com.ehensin.seda.test.LotteryOrderLpsHandler</handler>
+       <init-param>
+            <name>lpsip</name>
+            <value>${lps.ip}</value>
+       </init-param>
+       <init-param>
+            <name>lpsport</name>
+            <value>${lps.port}</value>
+       </init-param>
+   </stage>
+ </process>
+</processes>

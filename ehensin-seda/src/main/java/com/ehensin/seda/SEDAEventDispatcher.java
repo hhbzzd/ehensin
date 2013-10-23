@@ -23,8 +23,8 @@ import com.ehensin.seda.spi.IEvent;
 import com.ehensin.seda.spi.IEventDispatcher;
 import com.ehensin.seda.spi.IStageContext;
 
-public class SEDAEventDispatcher implements IEventDispatcher{
-    private Map<Class<? extends IEvent>,InternalStageContext> eventMap;
+class SEDAEventDispatcher implements IEventDispatcher{
+    Map<Class<? extends IEvent>,InternalStageContext> eventMap;
     public SEDAEventDispatcher(){
     	eventMap = new HashMap<Class<? extends IEvent>,InternalStageContext>(); 
     }

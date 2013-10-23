@@ -21,15 +21,21 @@ import java.util.List;
 
 import com.ehensin.seda.spi.IStageContext;
 
-
+/**
+ * Stage edge of stage graph
+ * */
 class StageEdge {
-	
-
-
+	/*
+	 * stage context
+	 * */
 	private IStageContext stageCtx;
-
+    /*
+     * nest stage edge list
+     * */
     private List<StageEdge> nexts;
-
+    /*
+     * previous stage edge
+     * */
     private StageEdge prev;
     
     public StageEdge(List<StageEdge> nexts, StageEdge prev, IStageContext stageCtx){
@@ -37,9 +43,11 @@ class StageEdge {
     	this.prev = prev;
     	this.stageCtx = stageCtx;
     }
+    
 	public List<StageEdge> getNexts() {
 		return nexts;
 	}
+	
 	public void addNext(StageEdge next) {
 		if(this.nexts == null){
 			nexts = new ArrayList<StageEdge>();
@@ -50,6 +58,7 @@ class StageEdge {
 	public StageEdge getPrev() {
 		return prev;
 	}
+	
 	public void setPrev(StageEdge prev) {
 		this.prev = prev;
 	}

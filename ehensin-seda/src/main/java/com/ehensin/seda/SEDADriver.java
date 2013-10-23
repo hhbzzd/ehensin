@@ -16,6 +16,7 @@
 
 package com.ehensin.seda;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.ehensin.seda.spi.ICallBack;
@@ -23,7 +24,10 @@ import com.ehensin.seda.spi.IEvent;
 import com.ehensin.seda.spi.IEventDispatcher;
 import com.ehensin.seda.spi.IStageContext;
 import com.ehensin.seda.spi.IStageListener;
-
+/**
+ * seda driver to drive seda system to work
+ * 
+ * */
 public class SEDADriver implements IStageListener{
 	private StageGraph graph;
 	private ICallBack callback;
@@ -59,6 +63,15 @@ public class SEDADriver implements IStageListener{
 
     public void signal(IEvent event) throws UnSupportEventException{
     	dispatcher.dispatch(event);
+    }
+    
+    /**销毁事件驱动实体*/
+    public void destroy(){
+    	Iterator<InternalStageContext> it = ((SEDAEventDispatcher)dispatcher).eventMap.values().iterator();
+    	while(it.hasNext()){
+    		InternalStageContext stx = it.next();
+    		stx.getStage().destroy();
+    	}
     }
 
 	@Override

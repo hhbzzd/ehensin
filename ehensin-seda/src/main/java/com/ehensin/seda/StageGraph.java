@@ -20,14 +20,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Stage Graph depicts a stage processing, a graph made up of a series of stage edge.
+ * if you want to construct an automatic stage processing, please connect different edge.
+ * if you want to construct a manually stage processing, please leave edge alone.
+ * 
+ * A stage graph is a tree structure. any edge has one or more children, and only has one previous
+ * edge.
+ * 
+ * */
 import com.ehensin.seda.spi.IStageContext;
 
 
 public class StageGraph {
-	
+	/*map stage name to stage edge*/
     private Map<String, StageEdge> stageEdageMap;
-    
+    /*
+     * all roots of stage graph.
+     * */
     private List<StageEdge> roots;
     public StageGraph(){
     	stageEdageMap = new HashMap<String, StageEdge>();
@@ -36,7 +46,9 @@ public class StageGraph {
     public List<StageEdge> getRoots(){
     	return roots;
     }
-  
+    /**
+     * add a stage edge to root lists;
+     * */
     public boolean addEdge(IStageContext stageCtx){
     	if( stageEdageMap.get(stageCtx.getStageName()) != null ){
     		return false;
@@ -46,7 +58,13 @@ public class StageGraph {
     	stageEdageMap.put(stageCtx.getStageName(), edge);
     	return true;
     }
-   
+    /**
+     * append a stage to another stage edge
+     * @param frontStage  front stage edge context which need to append
+     * @param stageCtx the append stage context
+     * @return true append successfully
+     *         false append failed if no front stage contetx exists.
+     * */
     public boolean append(IStageContext frontStage, IStageContext stageCtx){
     	if( stageEdageMap.get(stageCtx.getStageName()) != null ){
     		return false;
@@ -60,7 +78,11 @@ public class StageGraph {
     	
     	return true;
     }
-    
+    /**
+     * lookup stage edge according to stage name
+     * @return null no stage edge fond.
+     *         StageEdge instance with this stage name
+     * */
     public StageEdge lookup(String stageName){
     	for( StageEdge edge : roots ){
     		StageEdge e = recursive(edge, stageName); 
@@ -70,7 +92,9 @@ public class StageGraph {
     	}
     	return null;
     }
-
+    /*
+     * internal function to recursive stage graph to find a Stage edge with stage name
+     * */
     private StageEdge recursive(StageEdge edge, String stageName){
 		if(edge.getStageCtx().getStageName().equals(stageName) )
 			return edge;

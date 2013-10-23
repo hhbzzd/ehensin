@@ -19,7 +19,10 @@ package com.ehensin.seda;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ehensin.seda.spi.IEvent;
-
+/**
+ * 
+ * 
+ * */
 public abstract class StageEvent implements IEvent{
 	static AtomicInteger ID_SEQ = new AtomicInteger(0);
 	/**
